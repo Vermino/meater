@@ -66,6 +66,9 @@ async fn main() -> Result<()> {
             println!();
 
             let interval_duration = Duration::from_secs(interval);
+
+            // Set up platform-specific signal handling
+            #[cfg(unix)]
             let mut sigterm = tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate())?;
 
             loop {
@@ -74,6 +77,7 @@ async fn main() -> Result<()> {
                         println!("\nShutting down gracefully...");
                         break;
                     }
+                    #[cfg(unix)]
                     _ = sigterm.recv() => {
                         println!("\nReceived SIGTERM, shutting down...");
                         break;
