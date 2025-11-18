@@ -21,11 +21,13 @@ foreach ($lib in $libs.GetEnumerator()) {
     Write-Host "Downloading $($lib.Key)..."
     try {
         Invoke-WebRequest -Uri $lib.Value -OutFile $outFile
-        Write-Host "  ✓ Downloaded $($lib.Key) ($(([math]::Round((Get-Item $outFile).Length / 1KB, 2))) KB)"
+        $sizeKB = [math]::Round((Get-Item $outFile).Length / 1KB, 2)
+        Write-Host "  Downloaded $($lib.Key) ($sizeKB KB)" -ForegroundColor Green
     } catch {
-        Write-Host "  ✗ Failed to download $($lib.Key): $_" -ForegroundColor Red
+        Write-Host "  Failed to download $($lib.Key): $_" -ForegroundColor Red
     }
 }
 
-Write-Host "`nDone! Libraries downloaded to $libsDir/"
-Write-Host "Now update index.html to use local files instead of CDN."
+Write-Host ""
+Write-Host "Done! Libraries downloaded to $libsDir/"
+Write-Host "Now restart the web server and Tauri app."
