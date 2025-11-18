@@ -17,6 +17,8 @@ tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
 uuid = { workspace = true }
 futures = { workspace = true }
+
+[target.'cfg(target_os = "linux")'.dependencies]
 dbus = { version = "0.9.7", features = ["vendored"] }
 embedded-graphics = "0.8.1"
 rppal = { version = "0.22.1", features = ["hal"] }

@@ -1,18 +1,29 @@
+#[cfg(target_os = "linux")]
 use anyhow::{anyhow, Context};
+#[cfg(target_os = "linux")]
 use embedded_graphics::image::{Image, SubImage};
+#[cfg(target_os = "linux")]
 use embedded_graphics::pixelcolor::BinaryColor;
+#[cfg(target_os = "linux")]
 use embedded_graphics::primitives::Rectangle;
+#[cfg(target_os = "linux")]
 use embedded_graphics::Drawable;
+#[cfg(target_os = "linux")]
 use embedded_graphics::{
     geometry::{OriginDimensions, Point, Size},
     image::ImageDrawableExt,
 };
+#[cfg(target_os = "linux")]
 use futures::{stream, Stream, StreamExt};
+#[cfg(target_os = "linux")]
 use tokio::sync::mpsc;
 
+#[cfg(target_os = "linux")]
 mod icons;
+#[cfg(target_os = "linux")]
 mod meater;
 
+#[cfg(target_os = "linux")]
 /// Consolidate events.
 enum Event {
     /// Show centered icon.
@@ -21,6 +32,7 @@ enum Event {
     Update(f32),
 }
 
+#[cfg(target_os = "linux")]
 /// Turn [`meater::Event`]s into consolidate state [`Event`]s.
 fn process_events(receiver: mpsc::Receiver<meater::Event>) -> impl Stream<Item = Event> {
     struct State {
@@ -58,6 +70,7 @@ fn process_events(receiver: mpsc::Receiver<meater::Event>) -> impl Stream<Item =
     })
 }
 
+#[cfg(target_os = "linux")]
 fn draw_number<T: sh1106::interface::DisplayInterface>(
     value: f32,
     glyphs: &[SubImage<'_, tinybmp::Bmp<BinaryColor>>],
@@ -84,6 +97,7 @@ fn draw_number<T: sh1106::interface::DisplayInterface>(
     Image::new(n3, Point::new(x, 0)).draw(display).unwrap();
 }
 
+#[cfg(target_os = "linux")]
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> anyhow::Result<()> {
     tracing_subscriber::fmt::init();
@@ -150,4 +164,11 @@ async fn main() -> anyhow::Result<()> {
     result.1?;
 
     Ok(())
+}
+
+#[cfg(not(target_os = "linux"))]
+fn main() {
+    eprintln!("Error: meater-display is only supported on Linux (Raspberry Pi).");
+    eprintln!("Please use meater-cli instead for cross-platform support.");
+    std::process::exit(1);
 }

@@ -1,5 +1,6 @@
 [workspace]
 members = ["meater-core", "meater-cli", "meater-display"]
+default-members = ["meater-core", "meater-cli"]
 resolver = "2"
 
 [workspace.dependencies]
