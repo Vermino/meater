@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "identifier": "com.meater.monitor",
   "build": {
+    "devPath": "../frontend",
     "beforeDevCommand": "",
     "beforeBuildCommand": "",
     "frontendDist": "../frontend"
