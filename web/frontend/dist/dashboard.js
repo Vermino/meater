@@ -1,5 +1,11 @@
 const { useState, useEffect } = React;
-const { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } = Recharts;
+const { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } = window.Recharts || {};
+
+// Check if Recharts is loaded
+if (!window.Recharts) {
+    console.error('Recharts not loaded! Waiting...');
+    setTimeout(() => window.location.reload(), 1000);
+}
 
 // Lucide icons as React components (simplified)
 const Flame = ({ className }) => (
@@ -85,7 +91,13 @@ const MeaterDashboard = () => {
 
     // Initialize WebSocket connection
     useEffect(() => {
-        const ws = new WebSocket(`ws://${window.location.host}/ws`);
+        // Determine WebSocket URL (works for both Tauri and browser)
+        const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsHost = window.location.host || 'localhost:3000';
+        const wsUrl = `${wsProtocol}//${wsHost}/ws`;
+
+        console.log('Connecting to WebSocket:', wsUrl);
+        const ws = new WebSocket(wsUrl);
 
         ws.onopen = () => {
             console.log('WebSocket connected');
@@ -102,6 +114,11 @@ const MeaterDashboard = () => {
         ws.onclose = () => {
             console.log('WebSocket disconnected');
             setWsConnected(false);
+            // Auto-reconnect after 3 seconds
+            setTimeout(() => {
+                console.log('Attempting to reconnect...');
+                window.location.reload();
+            }, 3000);
         };
 
         ws.onerror = (error) => {
@@ -109,9 +126,13 @@ const MeaterDashboard = () => {
         };
 
         // Fetch initial probe data
-        fetch('/api/probes')
+        const apiUrl = window.location.origin + '/api/probes';
+        fetch(apiUrl)
             .then(res => res.json())
-            .then(data => setProbes(data))
+            .then(data => {
+                console.log('Initial probe data:', data);
+                setProbes(data);
+            })
             .catch(err => console.error('Error fetching probes:', err));
 
         return () => ws.close();

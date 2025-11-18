@@ -1,0 +1,4 @@
+# Tauri-specific ignores
+target/
+WixTools/
+.cargo/
