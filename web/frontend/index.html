@@ -77,8 +77,29 @@
 
                 statusEl.textContent = 'Loading dashboard...';
 
-                await loadScript(['./dist/dashboard.js'], 'text/babel');
-                console.log('dashboard.js loaded successfully');
+                // Fetch the dashboard source and compile it with Babel so
+                // JSX renders correctly even when loaded dynamically.
+                const dashboardSource = await fetch('./dist/dashboard.js').then((res) => {
+                    if (!res.ok) {
+                        throw new Error(`Failed to fetch dashboard.js: ${res.status} ${res.statusText}`);
+                    }
+                    return res.text();
+                });
+
+                if (!window.Babel) {
+                    throw new Error('Babel is not available to compile the dashboard.');
+                }
+
+                const compiled = window.Babel.transform(dashboardSource, {
+                    presets: ['env', 'react'],
+                }).code;
+
+                const dashboardScript = document.createElement('script');
+                dashboardScript.type = 'text/javascript';
+                dashboardScript.text = compiled;
+                document.body.appendChild(dashboardScript);
+
+                console.log('dashboard.js compiled and executed');
 
                 statusEl.textContent = 'Dashboard loaded';
             } catch (err) {
