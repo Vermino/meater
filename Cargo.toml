@@ -9,6 +9,10 @@ tokio-util = "0.7.13"
 
 # Serialization
 serde = { version = "1.0", features = ["derive"] }
+csv = "1.3"
+
+# CLI
+clap = { version = "4.5", features = ["derive"] }
 
 # Error handling
 anyhow = "1.0.75"
