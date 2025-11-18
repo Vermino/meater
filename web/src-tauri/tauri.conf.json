@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "identifier": "com.meater.monitor",
   "build": {
-    "devPath": "../frontend",
+    "devUrl": "http://localhost:3000",
     "beforeDevCommand": "",
     "beforeBuildCommand": "",
     "frontendDist": "../frontend"
@@ -49,7 +49,7 @@
       }
     ],
     "security": {
-      "csp": "default-src 'self' tauri: https://unpkg.com https://cdn.tailwindcss.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://cdn.tailwindcss.com tauri:; style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; font-src 'self' data: https://cdn.tailwindcss.com; connect-src 'self' ws://localhost:3000 http://localhost:3000 https://unpkg.com https://cdn.tailwindcss.com; img-src 'self' data: tauri:;"
+      "csp": null
     }
   }
 }
