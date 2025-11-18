@@ -67,40 +67,73 @@ async fn main() -> Result<()> {
 
             let interval_duration = Duration::from_secs(interval);
 
-            // Set up platform-specific signal handling
+            // Platform-specific event loop
             #[cfg(unix)]
-            let mut sigterm = tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate())?;
+            {
+                let mut sigterm = tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate())?;
 
-            loop {
-                tokio::select! {
-                    _ = tokio::signal::ctrl_c() => {
-                        println!("\nShutting down gracefully...");
-                        break;
-                    }
-                    #[cfg(unix)]
-                    _ = sigterm.recv() => {
-                        println!("\nReceived SIGTERM, shutting down...");
-                        break;
-                    }
-                    result = connection.read_temperature() => {
-                        match result {
-                            Ok(reading) => {
-                                println!(
-                                    "[{}] Tip: {:.1}°C | Ambient: {:.1}°C | Battery: {}%",
-                                    reading.timestamp.duration_since(std::time::UNIX_EPOCH)
-                                        .unwrap_or_default()
-                                        .as_secs(),
-                                    reading.tip_temperature,
-                                    reading.ambient_temperature,
-                                    reading.battery_percent
-                                );
-                            }
-                            Err(e) => {
-                                eprintln!("Error reading temperature: {}", e);
-                                break;
-                            }
+                loop {
+                    tokio::select! {
+                        _ = tokio::signal::ctrl_c() => {
+                            println!("\nShutting down gracefully...");
+                            break;
                         }
-                        tokio::time::sleep(interval_duration).await;
+                        _ = sigterm.recv() => {
+                            println!("\nReceived SIGTERM, shutting down...");
+                            break;
+                        }
+                        result = connection.read_temperature() => {
+                            match result {
+                                Ok(reading) => {
+                                    println!(
+                                        "[{}] Tip: {:.1}°C | Ambient: {:.1}°C | Battery: {}%",
+                                        reading.timestamp.duration_since(std::time::UNIX_EPOCH)
+                                            .unwrap_or_default()
+                                            .as_secs(),
+                                        reading.tip_temperature,
+                                        reading.ambient_temperature,
+                                        reading.battery_percent
+                                    );
+                                }
+                                Err(e) => {
+                                    eprintln!("Error reading temperature: {}", e);
+                                    break;
+                                }
+                            }
+                            tokio::time::sleep(interval_duration).await;
+                        }
+                    }
+                }
+            }
+
+            #[cfg(not(unix))]
+            {
+                loop {
+                    tokio::select! {
+                        _ = tokio::signal::ctrl_c() => {
+                            println!("\nShutting down gracefully...");
+                            break;
+                        }
+                        result = connection.read_temperature() => {
+                            match result {
+                                Ok(reading) => {
+                                    println!(
+                                        "[{}] Tip: {:.1}°C | Ambient: {:.1}°C | Battery: {}%",
+                                        reading.timestamp.duration_since(std::time::UNIX_EPOCH)
+                                            .unwrap_or_default()
+                                            .as_secs(),
+                                        reading.tip_temperature,
+                                        reading.ambient_temperature,
+                                        reading.battery_percent
+                                    );
+                                }
+                                Err(e) => {
+                                    eprintln!("Error reading temperature: {}", e);
+                                    break;
+                                }
+                            }
+                            tokio::time::sleep(interval_duration).await;
+                        }
                     }
                 }
             }
