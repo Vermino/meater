@@ -146,6 +146,15 @@ async fn main() -> Result<()> {
                 )
             }),
         )
+        .nest_service(
+            "/libs",
+            get_service(ServeDir::new("web/frontend/libs")).handle_error(|error| async move {
+                (
+                    axum::http::StatusCode::INTERNAL_SERVER_ERROR,
+                    format!("Unhandled error: {}", error),
+                )
+            }),
+        )
         .layer(
             CorsLayer::new()
                 .allow_origin(Any)
