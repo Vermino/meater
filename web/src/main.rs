@@ -146,7 +146,12 @@ async fn main() -> Result<()> {
                 )
             }),
         )
-        .layer(CorsLayer::new().allow_origin(Any))
+        .layer(
+            CorsLayer::new()
+                .allow_origin(Any)
+                .allow_methods(Any)
+                .allow_headers(Any)
+        )
         .with_state(app_state);
 
     // Start server

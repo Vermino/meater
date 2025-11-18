@@ -21,15 +21,34 @@
     </style>
 </head>
 <body class="bg-gray-900">
-    <div id="root"></div>
+    <div id="root">
+        <div style="color: white; padding: 20px; font-size: 18px;">
+            <h1>Loading Meater Monitor...</h1>
+            <p>If you see this, the HTML loaded successfully!</p>
+            <p id="status">Initializing scripts...</p>
+        </div>
+    </div>
+    <script>
+        console.log('Page loaded, starting initialization...');
+        document.getElementById('status').textContent = 'Scripts loaded, waiting for React...';
+    </script>
     <script type="text/babel">
+        console.log('Babel script running...');
         // Wait for Recharts to load
         window.addEventListener('load', function() {
+            console.log('Window loaded event fired');
+            document.getElementById('status').textContent = 'Loading dashboard...';
             // Give Recharts time to initialize
             setTimeout(() => {
+                console.log('Loading dashboard.js');
                 const script = document.createElement('script');
                 script.type = 'text/babel';
                 script.src = '/static/dashboard.js';
+                script.onload = () => console.log('dashboard.js loaded successfully');
+                script.onerror = (e) => {
+                    console.error('Failed to load dashboard.js', e);
+                    document.getElementById('status').textContent = 'Error loading dashboard.js';
+                };
                 document.body.appendChild(script);
             }, 100);
         });

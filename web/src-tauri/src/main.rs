@@ -28,7 +28,7 @@ struct ProbeStatus {
 struct AppState {
     probe_statuses: Arc<RwLock<Vec<ProbeStatus>>>,
     db_pool: meater_core::db::SqlitePool,
-    event_tx: broadcast::Sender<ProbeEvent>,
+    _event_tx: broadcast::Sender<ProbeEvent>,
 }
 
 #[tauri::command]
@@ -108,7 +108,7 @@ async fn main() -> anyhow::Result<()> {
             },
         ])),
         db_pool: pool.clone(),
-        event_tx: event_tx.clone(),
+        _event_tx: event_tx.clone(),
     });
 
     // Spawn probe manager
