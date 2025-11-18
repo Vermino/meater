@@ -8,11 +8,12 @@ use tokio::sync::mpsc;
 use tokio_util::sync::CancellationToken;
 use uuid::uuid;
 
-const SERVICE_UUID: uuid::Uuid = uuid!("a75cc7fc-c956-488f-ac2a-2dbc08b63a04");
-const BATTERY_UUID: uuid::Uuid = uuid!("2adb4877-68d8-4884-bd3c-d83853bf27b8");
-const TEMPERATURE_UUID: uuid::Uuid = uuid!("7edda774-045e-4bbf-909b-45d1991a2876");
+pub(crate) const SERVICE_UUID: uuid::Uuid = uuid!("a75cc7fc-c956-488f-ac2a-2dbc08b63a04");
+pub(crate) const BATTERY_UUID: uuid::Uuid = uuid!("2adb4877-68d8-4884-bd3c-d83853bf27b8");
+pub(crate) const TEMPERATURE_UUID: uuid::Uuid = uuid!("7edda774-045e-4bbf-909b-45d1991a2876");
 
 /// State the MEATER device may be in.
+#[derive(Debug, Clone)]
 pub enum State {
     Disconnected,
     Connecting,
