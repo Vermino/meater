@@ -43,7 +43,7 @@
                 console.log('Loading dashboard.js');
                 const script = document.createElement('script');
                 script.type = 'text/babel';
-                script.src = '/static/dashboard.js';
+                script.src = './dist/dashboard.js';
                 script.onload = () => console.log('dashboard.js loaded successfully');
                 script.onerror = (e) => {
                     console.error('Failed to load dashboard.js', e);

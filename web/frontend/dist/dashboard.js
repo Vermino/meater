@@ -92,11 +92,12 @@ const MeaterDashboard = () => {
     // Initialize WebSocket connection
     useEffect(() => {
         // Determine WebSocket URL (works for both Tauri and browser)
-        const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const wsHost = window.location.host || 'localhost:3000';
-        const wsUrl = `${wsProtocol}//${wsHost}/ws`;
+        // In Tauri, the page is served from tauri://localhost, so we need to hardcode the backend URL
+        const isTauri = window.location.protocol === 'tauri:' || window.__TAURI__ !== undefined;
+        const wsUrl = isTauri ? 'ws://localhost:3000/ws' :
+            `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/ws`;
 
-        console.log('Connecting to WebSocket:', wsUrl);
+        console.log('Connecting to WebSocket:', wsUrl, '(Tauri mode:', isTauri + ')');
         const ws = new WebSocket(wsUrl);
 
         ws.onopen = () => {
@@ -126,7 +127,8 @@ const MeaterDashboard = () => {
         };
 
         // Fetch initial probe data
-        const apiUrl = window.location.origin + '/api/probes';
+        const apiBaseUrl = isTauri ? 'http://localhost:3000' : window.location.origin;
+        const apiUrl = apiBaseUrl + '/api/probes';
         fetch(apiUrl)
             .then(res => res.json())
             .then(data => {
