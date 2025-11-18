@@ -5,18 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Meater Monitor - Real-time BBQ Temperature Tracking</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔥</text></svg>">
-    <script src="libs/react.production.min.js"></script>
-    <script src="libs/react-dom.production.min.js"></script>
-    <script src="libs/react-is.production.min.js"></script>
-    <script src="libs/prop-types.min.js"></script>
     <script>
-        // Debug: Check if PropTypes is available
-        console.log('After prop-types load:', typeof window.PropTypes);
-        console.log('PropTypes object:', window.PropTypes);
+        // Attempt to load a script from a list of URLs (local first, CDN fallback)
+        function loadScript(urls, type = 'text/javascript') {
+            return new Promise((resolve, reject) => {
+                const tryNext = (index) => {
+                    if (index >= urls.length) {
+                        reject(new Error(`Failed to load script from URLs: ${urls.join(', ')}`));
+                        return;
+                    }
+
+                    const script = document.createElement('script');
+                    script.src = urls[index];
+                    script.type = type;
+                    script.onload = () => resolve();
+                    script.onerror = () => {
+                        console.warn(`Failed to load ${urls[index]}, trying next fallback if available...`);
+                        tryNext(index + 1);
+                    };
+                    document.head.appendChild(script);
+                };
+
+                tryNext(0);
+            });
+        }
     </script>
-    <script src="libs/babel.min.js"></script>
-    <script src="libs/Recharts.js"></script>
-    <script src="libs/tailwind.min.js"></script>
     <style>
         @keyframes pulse {
             0%, 100% { opacity: 1; }
@@ -37,28 +50,42 @@
     </div>
     <script>
         console.log('Page loaded, starting initialization...');
-        document.getElementById('status').textContent = 'Scripts loaded, waiting for React...';
-    </script>
-    <script type="text/babel">
-        console.log('Babel script running...');
-        // Wait for Recharts to load
-        window.addEventListener('load', function() {
-            console.log('Window loaded event fired');
-            document.getElementById('status').textContent = 'Loading dashboard...';
-            // Give Recharts time to initialize
-            setTimeout(() => {
-                console.log('Loading dashboard.js');
-                const script = document.createElement('script');
-                script.type = 'text/babel';
-                script.src = './dist/dashboard.js';
-                script.onload = () => console.log('dashboard.js loaded successfully');
-                script.onerror = (e) => {
-                    console.error('Failed to load dashboard.js', e);
-                    document.getElementById('status').textContent = 'Error loading dashboard.js';
-                };
-                document.body.appendChild(script);
-            }, 100);
-        });
+
+        const statusEl = document.getElementById('status');
+        statusEl.textContent = 'Loading frontend libraries...';
+
+        const libraries = [
+            { name: 'React', urls: ['./libs/react.production.min.js', 'https://unpkg.com/react@18/umd/react.production.min.js'] },
+            { name: 'ReactDOM', urls: ['./libs/react-dom.production.min.js', 'https://unpkg.com/react-dom@18/umd/react-dom.production.min.js'] },
+            { name: 'ReactIs', urls: ['./libs/react-is.production.min.js', 'https://unpkg.com/react-is@18.2.0/umd/react-is.production.min.js'] },
+            { name: 'PropTypes', urls: ['./libs/prop-types.min.js', 'https://cdnjs.cloudflare.com/ajax/libs/prop-types/15.8.1/prop-types.min.js'] },
+            { name: 'Babel', urls: ['./libs/babel.min.js', 'https://unpkg.com/@babel/standalone/babel.min.js'] },
+            { name: 'Recharts', urls: ['./libs/Recharts.js', 'https://unpkg.com/recharts@2.4.3/umd/Recharts.js'] },
+            { name: 'Tailwind', urls: ['./libs/tailwind.min.js', 'https://cdn.tailwindcss.com'] },
+        ];
+
+        (async () => {
+            try {
+                for (const lib of libraries) {
+                    statusEl.textContent = `Loading ${lib.name}...`;
+                    await loadScript(lib.urls);
+                    console.log(`${lib.name} loaded successfully`);
+                }
+
+                console.log('After prop-types load:', typeof window.PropTypes);
+                console.log('PropTypes object:', window.PropTypes);
+
+                statusEl.textContent = 'Loading dashboard...';
+
+                await loadScript(['./dist/dashboard.js'], 'text/babel');
+                console.log('dashboard.js loaded successfully');
+
+                statusEl.textContent = 'Dashboard loaded';
+            } catch (err) {
+                console.error('Initialization failed:', err);
+                statusEl.textContent = 'Error initializing dashboard. Check console for details.';
+            }
+        })();
     </script>
 </body>
 </html>
