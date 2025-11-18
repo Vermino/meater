@@ -3,8 +3,9 @@
 $libs = @{
     "react.production.min.js" = "https://unpkg.com/react@18/umd/react.production.min.js"
     "react-dom.production.min.js" = "https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"
+    "react-is.production.min.js" = "https://unpkg.com/react-is/umd/react-is.production.min.js"
     "babel.min.js" = "https://unpkg.com/@babel/standalone/babel.min.js"
-    "Recharts.js" = "https://unpkg.com/recharts@2.12.7/dist/Recharts.js"
+    "Recharts.min.js" = "https://unpkg.com/recharts/umd/Recharts.min.js"
     "tailwind.min.js" = "https://cdn.tailwindcss.com"
 }
 
