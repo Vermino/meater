@@ -7,7 +7,7 @@ use meater_core::{
 };
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
-use tauri::{Manager, State};
+use tauri::State;
 use tokio::sync::{broadcast, RwLock};
 use tokio_util::sync::CancellationToken;
 
@@ -38,7 +38,7 @@ async fn get_probes(state: State<'_, Arc<AppState>>) -> Result<Vec<ProbeStatus>,
 }
 
 #[tauri::command]
-async fn start_monitoring(state: State<'_, Arc<AppState>>) -> Result<(), String> {
+async fn start_monitoring(_state: State<'_, Arc<AppState>>) -> Result<(), String> {
     // Probes are auto-discovered and monitored
     Ok(())
 }
@@ -49,12 +49,8 @@ async fn main() -> anyhow::Result<()> {
     tracing_subscriber::fmt::init();
 
     // Initialize database
-    let pool = create_pool("meater.db")
-        .await
-        .map_err(|e| format!("Database error: {}", e))?;
-    init_schema(&pool)
-        .await
-        .map_err(|e| format!("Schema init error: {}", e))?;
+    let pool = create_pool("meater.db").await?;
+    init_schema(&pool).await?;
 
     // Create broadcast channel
     let (event_tx, _event_rx) = broadcast::channel::<ProbeEvent>(100);

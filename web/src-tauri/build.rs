@@ -5,45 +5,48 @@ fn main() {
     let icon_path = Path::new("icons/icon.ico");
     if !icon_path.exists() {
         std::fs::create_dir_all("icons").ok();
-        // Create a minimal valid ICO file (16x16 black square)
-        // ICO header + one image
-        let ico_data = vec![
-            0, 0, 1, 0, // ICO magic + reserved + type
-            1, 0, // number of images
-            16, 16, // width, height
-            0, // colors in palette
-            0, // reserved
-            1, 0, // color planes
-            32, 0, // bits per pixel
-            0x44, 1, 0, 0, // size of image data (324 bytes)
-            22, 0, 0, 0, // offset to image data
+
+        // Create a minimal valid 1x1 pixel ICO file
+        // ICO format: Header (6 bytes) + Directory Entry (16 bytes) + PNG data
+
+        // Simpler approach: use a 1x1 pixel PNG embedded in ICO format
+        let png_data = vec![
+            0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, // PNG signature
+            0x00, 0x00, 0x00, 0x0D, 0x49, 0x48, 0x44, 0x52, // IHDR chunk
+            0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, // 1x1 dimensions
+            0x08, 0x06, 0x00, 0x00, 0x00, 0x1F, 0x15, 0xC4,
+            0x89, 0x00, 0x00, 0x00, 0x0D, 0x49, 0x44, 0x41,
+            0x54, 0x78, 0x9C, 0x62, 0x00, 0x01, 0x00, 0x00,
+            0x05, 0x00, 0x01, 0x0D, 0x0A, 0x2D, 0xB4, 0x00,
+            0x00, 0x00, 0x00, 0x49, 0x45, 0x4E, 0x44, 0xAE,
+            0x42, 0x60, 0x82, // IEND chunk
         ];
 
-        // BMP header
-        let mut bmp_header = vec![
-            40, 0, 0, 0, // header size
-            16, 0, 0, 0, // width
-            32, 0, 0, 0, // height (doubled for ICO)
-            1, 0, // planes
-            32, 0, // bits per pixel
-            0, 0, 0, 0, // compression
-            0, 0, 0, 0, // image size
-            0, 0, 0, 0, // x pixels per meter
-            0, 0, 0, 0, // y pixels per meter
-            0, 0, 0, 0, // colors used
-            0, 0, 0, 0, // important colors
+        let png_size = png_data.len() as u32;
+
+        let mut ico_data = vec![
+            0x00, 0x00, // Reserved (must be 0)
+            0x01, 0x00, // Type (1 = ICO)
+            0x01, 0x00, // Number of images
+            // Directory entry
+            0x01,       // Width (1 pixel)
+            0x01,       // Height (1 pixel)
+            0x00,       // Color palette size
+            0x00,       // Reserved
+            0x01, 0x00, // Color planes
+            0x20, 0x00, // Bits per pixel
         ];
 
-        // Simple black square pixel data (BGRA format)
-        let pixels = vec![0u8; 16 * 16 * 4]; // all black pixels
-        let mask = vec![0u8; 16 * 4]; // AND mask (all transparent)
+        // Image size (4 bytes, little-endian)
+        ico_data.extend_from_slice(&png_size.to_le_bytes());
 
-        let mut full_ico = ico_data;
-        full_ico.append(&mut bmp_header);
-        full_ico.extend_from_slice(&pixels);
-        full_ico.extend_from_slice(&mask);
+        // Image offset (4 bytes, little-endian) - starts after header (6) + directory (16) = 22
+        ico_data.extend_from_slice(&22u32.to_le_bytes());
 
-        std::fs::write(icon_path, full_ico).ok();
+        // Append PNG data
+        ico_data.extend_from_slice(&png_data);
+
+        std::fs::write(icon_path, ico_data).ok();
     }
 
     tauri_build::build()

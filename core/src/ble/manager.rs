@@ -6,7 +6,6 @@
 use anyhow::{anyhow, Context, Result};
 use btleplug::api::{
     Central, CentralEvent, CharPropFlags, Manager as _, Peripheral as _, ScanFilter,
-    ValueNotification,
 };
 use btleplug::platform::{Adapter, Manager, Peripheral};
 use futures::StreamExt;
