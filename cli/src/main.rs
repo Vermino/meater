@@ -8,10 +8,10 @@ use embedded_graphics::{
     image::ImageDrawableExt,
 };
 use futures::{stream, Stream, StreamExt};
+use meater_core::ble;
 use tokio::sync::mpsc;
 
 mod icons;
-mod meater;
 
 /// Consolidate events.
 enum Event {
@@ -21,10 +21,10 @@ enum Event {
     Update(f32),
 }
 
-/// Turn [`meater::Event`]s into consolidate state [`Event`]s.
-fn process_events(receiver: mpsc::Receiver<meater::Event>) -> impl Stream<Item = Event> {
+/// Turn [`ble::Event`]s into consolidate state [`Event`]s.
+fn process_events(receiver: mpsc::Receiver<ble::Event>) -> impl Stream<Item = Event> {
     struct State {
-        receiver: mpsc::Receiver<meater::Event>,
+        receiver: mpsc::Receiver<ble::Event>,
         temperature: f32,
     }
 
@@ -37,15 +37,15 @@ fn process_events(receiver: mpsc::Receiver<meater::Event>) -> impl Stream<Item =
         loop {
             if let Some(event) = stream_state.receiver.recv().await {
                 match event {
-                    meater::Event::State(state) => match state {
-                        meater::State::Disconnected => {
+                    ble::Event::State(state) => match state {
+                        ble::State::Disconnected => {
                             break Some((Event::Icon(icons::DISCONNECTED), stream_state))
                         }
-                        meater::State::Connecting => {
+                        ble::State::Connecting => {
                             break Some((Event::Icon(icons::CONNECTING), stream_state))
                         }
                     },
-                    meater::Event::Temperature { tip, ambient: _ } => {
+                    ble::Event::Temperature { tip, ambient: _ } => {
                         stream_state.temperature = tip;
                         break Some((Event::Update(tip), stream_state));
                     }
@@ -119,7 +119,7 @@ async fn main() -> anyhow::Result<()> {
 
     display.flush().unwrap();
 
-    let (client, receiver) = meater::Client::new();
+    let (client, receiver) = ble::Client::new();
 
     let event_handling = async move {
         let mut stream = std::pin::pin!(process_events(receiver));
