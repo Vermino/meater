@@ -1,5 +1,6 @@
 [workspace]
 members = ["core", "cli", "web"]
+exclude = ["web/src-tauri"]
 resolver = "2"
 
 [workspace.dependencies]
