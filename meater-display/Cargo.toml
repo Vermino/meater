@@ -1,0 +1,24 @@
+[package]
+name = "meater-display"
+version = "1.0.0"
+edition = "2021"
+
+[[bin]]
+name = "meater"
+path = "src/main.rs"
+
+[dependencies]
+meater-core = { path = "../meater-core" }
+anyhow = { workspace = true }
+btleplug = { workspace = true }
+tokio = { workspace = true }
+tokio-util = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+uuid = { workspace = true }
+futures = { workspace = true }
+dbus = { version = "0.9.7", features = ["vendored"] }
+embedded-graphics = "0.8.1"
+rppal = { version = "0.22.1", features = ["hal"] }
+sh1106 = "0.5.0"
+tinybmp = { git = "https://github.com/embedded-graphics/tinybmp" }
