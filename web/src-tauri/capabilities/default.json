@@ -1,6 +1,10 @@
 {
-  "nodes": {},
-  "cli": {
-    "version": ">= 2.0.0"
-  }
+  "$schema": "https://schema.tauri.app/config/2.0.0",
+  "identifier": "default",
+  "description": "Default permissions for Meater Monitor",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "shell:allow-open"
+  ]
 }
